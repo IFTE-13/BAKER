@@ -1,0 +1,100 @@
+========================= function checking item exixt of not ============================
+create or replace function validItem(itemno item.itemid%type) 
+return number 
+is
+value item.itemid%type; 
+
+begin 
+select itemid into value from item where itemid = itemno; 
+if value is null then return 0; 
+else return 1; 
+end if; 
+end;
+
+========================= function checking outlet exixt of not ============================
+create or replace function validOutlet(outletnum outlet.OUTLETID%type) 
+return number 
+is
+value outlet.outletid%type; 
+
+begin 
+select outletid into value from outlet where outletid = outletnum; 
+if value is null then return 0; 
+else return 1; 
+end if; 
+end;
+
+========================= function checking age is 18 or not before joining ============================
+create or replace function validJoiningDate(joindate employee.JOININGDATE%type) 
+return number 
+is 
+exp number; 
+
+begin 
+exp := (to_number(to_char(sysdate, 'yyyy')) - to_number(to_char(joindate, 'YYYY'))) ; 
+if exp < 18 then return 0; 
+else 
+return 1; 
+end if; 
+end;
+
+
+========================= function checking valid role ============================
+create or replace function validJob(jobType employee.job%type) 
+return number 
+is
+
+begin 
+if (jobType = 'Admin') or (jobType = 'Stuff') or (jobType = 'Chef') then  
+return 1; 
+else return 0;
+end if; 
+end;
+
+
+========================= function checking valid salary ============================
+create or replace function validSalary(salaryAmount employee.salary%type) 
+return number 
+is 
+
+begin 
+if salaryAmount > 1000 then  
+return 1; 
+else return 0;
+end if; 
+end;
+
+
+===========================procedure for adding employee=================================
+create or replace procedure AddEmployee(
+eno employee.empid%type, 
+ename employee.empname%type,
+add employee.address%type, 
+phn employee.phone%type, 
+jdate employee.joiningdate%type, 
+ddate employee.dob%type, 
+sal employee.salary%type, 
+pass employee.password%type, 
+jtype employee.job%type, 
+oid employee.outletid%type, 
+iid employee.itemid%type, 
+rol employee.role%type)
+is
+isValiditem number;
+isValidoutlet number;
+isJoiningDate number;
+isValidJob number;
+isValidSalary number;
+begin
+isValiditem := validItem(iid);
+isValidoutlet := validOutlet(oid);
+isJoiningDate := validJoiningDate(jdate);
+isValidJob := validJob(jtype);
+isValidSalary := validSalary(sal);
+
+if ((isValiditem = 1) and (isValidoutlet = 1) and (isJoiningDate = 1) and (isValidJob = 1) and (isValidSalary = 1)) then
+insert into employee (empid, empname, address, phone, joiningDate, dob, salary, password, job, outletid, itemid, role) values (eno, ename, add, phn, jdate, ddate, sal, pass, jtype, oid, iid, rol);
+end if;
+
+end;
+
